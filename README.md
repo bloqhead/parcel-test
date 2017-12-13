@@ -1,4 +1,6 @@
 # What is Parcel
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/bloqhead/parcel-test.svg)](https://greenkeeper.io/)
 [Read about it here](https://parceljs.org/)
 
 ## Install Parcel
