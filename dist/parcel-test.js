@@ -6,6 +6,7 @@
 // anything defined in a previous bundle is accessed via the
 // orig method which is the require for previous bundles
 
+// eslint-disable-next-line no-global-assign
 require = (function (modules, cache, entry) {
   // Save the require from previous bundle to this closure if any
   var previousRequire = typeof require === "function" && require;
@@ -33,20 +34,23 @@ require = (function (modules, cache, entry) {
         err.code = 'MODULE_NOT_FOUND';
         throw err;
       }
-
-      function localRequire(x) {
-        return newRequire(localRequire.resolve(x));
-      }
-
-      localRequire.resolve = function (x) {
-        return modules[name][1][x] || x;
-      };
+      
+      localRequire.resolve = resolve;
 
       var module = cache[name] = new newRequire.Module;
+
       modules[name][0].call(module.exports, localRequire, module, module.exports);
     }
 
     return cache[name].exports;
+
+    function localRequire(x){
+      return newRequire(localRequire.resolve(x));
+    }
+
+    function resolve(x){
+      return modules[name][1][x] || x;
+    }
   }
 
   function Module() {
@@ -65,7 +69,7 @@ require = (function (modules, cache, entry) {
 
   // Override the current require with this new one
   return newRequire;
-})({6:[function(require,module,exports) {
+})({5:[function(require,module,exports) {
 var bundleURL = null;
 function getBundleURLCached() {
   if (!bundleURL) {
@@ -80,7 +84,7 @@ function getBundleURL() {
   try {
     throw new Error;
   } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^\)\n]+/g);
+    var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
     if (matches) {
       return getBaseURL(matches[0]);
     }
@@ -90,13 +94,13 @@ function getBundleURL() {
 }
 
 function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^\/]+$/, '$1') + '/';
+  return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
 }
 
 exports.getBundleURL = getBundleURLCached;
 exports.getBaseURL = getBaseURL;
 
-},{}],5:[function(require,module,exports) {
+},{}],4:[function(require,module,exports) {
 var bundle = require('./bundle-url');
 
 function updateLink(link) {
@@ -124,43 +128,21 @@ function reloadCSS() {
 
     cssTimeout = null;
   }, 50);
-};
+}
 
 module.exports = reloadCSS;
 
-},{"./bundle-url":6}],4:[function(require,module,exports) {
+},{"./bundle-url":5}],3:[function(require,module,exports) {
 
         var reloadCSS = require('_css_loader');
         module.hot.dispose(reloadCSS);
         module.hot.accept(reloadCSS);
       
-},{"_css_loader":5}],3:[function(require,module,exports) {
+},{"_css_loader":4}],2:[function(require,module,exports) {
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _styles = require("./styles.scss");
-
-var _styles2 = _interopRequireDefault(_styles);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = () => {
-  console.log("parcel is running");
-};
-},{"./styles.scss":4}],2:[function(require,module,exports) {
-"use strict";
-
-var _main = require("./main");
-
-var _main2 = _interopRequireDefault(_main);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-(0, _main2.default)();
-},{"./main":3}],0:[function(require,module,exports) {
+require("./styles.scss");
+},{"./styles.scss":3}],0:[function(require,module,exports) {
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
 function Module() {
@@ -177,8 +159,8 @@ function Module() {
 
 module.bundle.Module = Module;
 
-if (!module.bundle.parent) {
-  var ws = new WebSocket('ws://localhost:61182/');
+if (!module.bundle.parent && typeof WebSocket !== 'undefined') {
+  var ws = new WebSocket('ws://' + window.location.hostname + ':62547/');
   ws.onmessage = function(event) {
     var data = JSON.parse(event.data);
 
@@ -195,7 +177,10 @@ if (!module.bundle.parent) {
     }
 
     if (data.type === 'reload') {
-      window.location.reload();
+      ws.close();
+      ws.onclose = function () {
+        window.location.reload();
+      }
     }
 
     if (data.type === 'error-resolved') {
@@ -203,7 +188,7 @@ if (!module.bundle.parent) {
     }
 
     if (data.type === 'error') {
-      console.error(`[parcel] 🚨 ${data.error.message}\n${data.error.stack}`);
+      console.error('[parcel] 🚨  ' + data.error.message + '\n' + 'data.error.stack');
     }
   };
 }
